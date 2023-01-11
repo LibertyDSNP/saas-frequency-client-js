@@ -1,0 +1,32 @@
+{
+  "name": "frequency-integration-tests",
+  "version": "1.0.0",
+  "description": "Integration tests for the Frequency project",
+  "scripts": {
+    "clean": "rm -Rf dist",
+    "build": "tsc -p ./tsconfig.json",
+    "test": "NODE_ENV=test jest --forceExit --coverage --verbose --runInBand",
+    "format": "tsc --noEmit --pretty",
+    "lint": "tsc --noEmit --pretty"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@frequency-chain/api-augment": "v0.9.29",
+    "@polkadot/api": "9.6.2",
+    "@polkadot/types": "^9.6.2",
+    "@polkadot/util": "^10.2.1"
+  },
+  "devDependencies": {
+    "@polkadot/typegen": "^9.6.2",
+    "@types/jest": "^29.4.0",
+    "prettier": "2.7.1",
+    "sinon": "^14.0.2",
+    "ts-node": "^10.9.1",
+    "jest": "^29.4.1",
+    "jest-junit": "^15.0.0",
+    "ts-jest": "^29.0.5",
+    "typescript": "^4.8.4"
+  }
+}
