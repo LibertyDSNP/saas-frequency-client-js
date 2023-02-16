@@ -2,18 +2,40 @@ import "@frequency-chain/api-augment";
 import assert from "assert";
 import { DefaultFrequencyClient} from "./defaultFrequencyClient"
 import {BlockPaginationRequest} from "./frequencyClient";
+import {GenericContainer, StartedTestContainer, Wait} from "testcontainers";
+import {ApiPromise, Keyring, WsProvider} from "@polkadot/api";
+import {KeyringPair} from "@polkadot/keyring/types";
 
 // To run these tests follow README instructions
 describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", () => {
+    jest.setTimeout(300000);
     let frequencyClient : DefaultFrequencyClient
+    let substrate: StartedTestContainer;
+    let api: ApiPromise;
+    let alice: KeyringPair;
+    const version = "v1.2.0"
     const ALICE = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
 
     beforeAll(async () => {
-        frequencyClient = await DefaultFrequencyClient.initialize(process.env.WS_PROVIDER_URL!!, "//Alice")
+        substrate = await new GenericContainer(
+            `dsnp/instant-seal-node-with-deployed-schemas:${version}`
+        )
+            .withWaitStrategy(Wait.forHealthCheck())
+            .withExposedPorts(30333, 9944, 9933)
+            .start();
+        const wsProvider = new WsProvider(
+            `ws://${substrate.getHost()}:${substrate.getMappedPort(9944)}`
+        );
+        api = await ApiPromise.create({ provider: wsProvider });
+        await api.isReady;
+        console.log("It's ready!");
+        const keyring = new Keyring({ type: "sr25519", ss58Format: 2 });
+        alice = keyring.addFromUri("//Alice");
+        frequencyClient = new DefaultFrequencyClient(alice,api)
     })
 
     afterAll(() => {
-        frequencyClient.polkadotApi.disconnect()
+        api.disconnect()
     })
 
     test("should successfully create and retrieve an MSA Account", async () => {
@@ -55,7 +77,7 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
     test("should successfully add ipfs message", async () => {
         let addMessageResult;
         try {
-            addMessageResult = await frequencyClient.addMessage("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi", 1, 860);
+            addMessageResult = await frequencyClient.addMessage(1,"bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",860);
             assert.equal(addMessageResult.result, true)
         } catch (err) {
             console.error(err);
@@ -73,7 +95,7 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
         // still be there. If you run just this test, you'll see 2 new messages.
         let addMessageResult1;
         try {
-            addMessageResult1 = await frequencyClient.addMessage("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi", 1, 860);
+            addMessageResult1 = await frequencyClient.addMessage(1,"bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",860);
         } finally {
             if (addMessageResult1) {
                 addMessageResult1.unsubscribe();
@@ -82,7 +104,7 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
 
         let addMessageResult2;
         try {
-            addMessageResult2 = await frequencyClient.addMessage("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi", 1, 860);
+            addMessageResult2 = await frequencyClient.addMessage(1,"bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi", 860);
         } finally {
             if (addMessageResult2) {
                 addMessageResult2.unsubscribe();

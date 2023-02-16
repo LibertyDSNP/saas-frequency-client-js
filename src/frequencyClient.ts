@@ -8,8 +8,8 @@ export interface FrequencyClient{
     polkadotApi: ApiPromise,
     keyringPair: KeyringPair,
     addMessage: (
-        ipfsMessageCid: string,
         ipfsMessageSchema: number,
+        ipfsMessageCid: string,
         ipfsMessageSize: number
     ) => Promise<AddMessageResult>;
     createMsa: () => Promise<CreateMsaResult>;

@@ -13,7 +13,7 @@ export class DefaultFrequencyClient implements FrequencyClient{
     keyringPair: KeyringPair;
     polkadotApi: ApiPromise;
 
-    private constructor(
+    constructor(
         keyringPair: KeyringPair,
         polkadotApi: ApiPromise
     ) {
@@ -37,8 +37,8 @@ export class DefaultFrequencyClient implements FrequencyClient{
     }
 
     addMessage(
-        ipfsMessageCid: string,
         ipfsMessageSchema: number,
+        ipfsMessageCid: string,
         ipfsMessageSize: number
     ): Promise<AddMessageResult>{
         const addIfsMessageExtrinsic = this.polkadotApi.tx.messages.addIpfsMessage(
