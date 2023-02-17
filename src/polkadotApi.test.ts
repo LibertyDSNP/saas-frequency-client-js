@@ -5,6 +5,7 @@ import {BlockPaginationRequest} from "./frequencyClient";
 import {GenericContainer, StartedTestContainer, Wait} from "testcontainers";
 import {ApiPromise, Keyring, WsProvider} from "@polkadot/api";
 import {KeyringPair} from "@polkadot/keyring/types";
+import {options} from "@frequency-chain/api-augment";
 
 // To run these tests follow README instructions
 describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", () => {
@@ -26,7 +27,7 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
         const wsProvider = new WsProvider(
             `ws://${substrate.getHost()}:${substrate.getMappedPort(9944)}`
         );
-        api = await ApiPromise.create({ provider: wsProvider });
+        api = await ApiPromise.create({ provider: wsProvider, ...options});
         await api.isReady;
         console.log("It's ready!");
         const keyring = new Keyring({ type: "sr25519", ss58Format: 2 });
@@ -79,6 +80,8 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
         try {
             addMessageResult = await frequencyClient.addMessage(1,"bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",860);
             assert.equal(addMessageResult.result, true)
+            let x = api.rpc.schemas.getBySchemaId("1")
+            console.log(x)
         } catch (err) {
             console.error(err);
             throw err;
@@ -90,12 +93,10 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
     },15000)
 
     test("should successfully get the first page of ipfs messages", async () => {
-        // Adding these extra messages just insures we see multiple results from the getMessage call
-        // If you ran all tests you'll see 3 new messages because the one from the previous test will
-        // still be there. If you run just this test, you'll see 2 new messages.
+        // Adding these extra messages just insures we see multiple results from the getMessage call.
         let addMessageResult1;
         try {
-            addMessageResult1 = await frequencyClient.addMessage(1,"bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",860);
+            addMessageResult1 = await frequencyClient.addMessage(2,"bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",860);
         } finally {
             if (addMessageResult1) {
                 addMessageResult1.unsubscribe();
@@ -104,7 +105,7 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
 
         let addMessageResult2;
         try {
-            addMessageResult2 = await frequencyClient.addMessage(1,"bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi", 860);
+            addMessageResult2 = await frequencyClient.addMessage(2,"bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi", 860);
         } finally {
             if (addMessageResult2) {
                 addMessageResult2.unsubscribe();
@@ -114,11 +115,11 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
         const pagination: BlockPaginationRequest = {
             from_block: 0,
             from_index: 0,
-            page_size: 25,
             to_block: 1000,
+            page_size: 25,
         };
         const retrieveMessageResult = await frequencyClient.getMessages(
-            1,
+            2,
             pagination
         );
         // This log statement shows that we are getting back the message data, although the cids are encoded
