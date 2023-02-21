@@ -24,15 +24,14 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
             .withWaitStrategy(Wait.forHealthCheck())
             .withExposedPorts(30333, 9944, 9933)
             .start();
-        const wsProvider = new WsProvider(
-            `ws://${substrate.getHost()}:${substrate.getMappedPort(9944)}`
-        );
-        api = await ApiPromise.create({ provider: wsProvider, ...options});
-        await api.isReady;
-        console.log("It's ready!");
-        const keyring = new Keyring({ type: "sr25519", ss58Format: 2 });
-        alice = keyring.addFromUri("//Alice");
-        frequencyClient = new DefaultFrequencyClient(alice,api)
+        // const wsProvider = new WsProvider(
+        //     `ws://${substrate.getHost()}:${substrate.getMappedPort(9944)}`
+        // );
+        // api = await ApiPromise.create({ provider: wsProvider, ...options});
+        // await api.isReady;
+        // const keyring = new Keyring({ type: "sr25519", ss58Format: 2 });
+        // alice = keyring.addFromUri("//Alice");
+        frequencyClient = await DefaultFrequencyClient.newInstance(`ws://${substrate.getHost()}:${substrate.getMappedPort(9944)}`, "//Alice")
     })
 
     afterAll(() => {
@@ -47,9 +46,7 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
             const x = await frequencyClient.polkadotApi.rpc.state.getStorage(
                 frequencyClient.polkadotApi.query.system.account.key(ALICE)
             );
-            console.log(x);
         } catch (err) {
-            console.error(err);
             throw err;
         } finally {
             if (createMsaResult) {
@@ -76,18 +73,23 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
     },15000)
 
     test("should successfully add ipfs message", async () => {
+        let createMsaResult;
+        let getMsaResult;
         let addMessageResult;
         try {
+            getMsaResult = await frequencyClient.getMsa()
+            if(getMsaResult.result != 1){
+                createMsaResult = await frequencyClient.createMsa();
+            }
             addMessageResult = await frequencyClient.addMessage(1,"bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",860);
             assert.equal(addMessageResult.result, true)
             let x = api.rpc.schemas.getBySchemaId("1")
-            console.log(x)
         } catch (err) {
-            console.error(err);
             throw err;
         } finally {
             if (addMessageResult) {
                 addMessageResult.unsubscribe();
+                createMsaResult?.unsubscribe();
             }
         }
     },15000)
@@ -122,8 +124,6 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
             2,
             pagination
         );
-        // This log statement shows that we are getting back the message data, although the cids are encoded
-        console.log(retrieveMessageResult.result)
 
     },15000)
 })

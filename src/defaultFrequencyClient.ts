@@ -13,7 +13,7 @@ export class DefaultFrequencyClient implements FrequencyClient{
     keyringPair: KeyringPair;
     polkadotApi: ApiPromise;
 
-    constructor(
+    private constructor(
         keyringPair: KeyringPair,
         polkadotApi: ApiPromise
     ) {
@@ -21,7 +21,7 @@ export class DefaultFrequencyClient implements FrequencyClient{
         this.polkadotApi = polkadotApi;
     }
 
-    public static async initialize(
+    public static async newInstance(
         providerUrl: string,
         suri: string
     ) {
@@ -50,42 +50,7 @@ export class DefaultFrequencyClient implements FrequencyClient{
             const unsubscribeFunction = await addIfsMessageExtrinsic?.signAndSend(
                 this.keyringPair,
                 ({ events = [], status }) => {
-                    console.log("Transaction status:", status.type);
                     if (status.isInBlock) {
-                        console.log("Included at block hash", status.asInBlock.toHex());
-                        console.log("Events:");
-
-                        events.forEach(({ event: { data, method, section }, phase }) => {
-                            console.log(
-                                "\t",
-                                phase.toString(),
-                                `: ${section}.${method}`,
-                                data.toString()
-                            );
-                        });
-
-                        events
-                            .filter(({ event }) =>
-                                this.polkadotApi.events.system.ExtrinsicFailed.is(event)
-                            )
-                            .forEach(
-                                ({
-                                     event: {
-                                         data: [error, info],
-                                     },
-                                 }) => {
-                                    if ((error as any).isModule) {
-                                        const decoded = this.polkadotApi.registry.findMetaError(
-                                            (error as any).asModule
-                                        );
-                                        const { docs, method, section } = decoded;
-
-                                        console.log(`${section}.${method}: ${docs.join(" ")}`);
-                                    } else {
-                                        console.log(error.toString());
-                                    }
-                                }
-                            );
                         resolve({
                             unsubscribe: unsubscribeFunction,
                             result: true,
@@ -113,47 +78,12 @@ export class DefaultFrequencyClient implements FrequencyClient{
                 ({ events = [], status }) => {
                     console.log("Transaction status:", status.type);
                     if (status.isInBlock) {
-                        console.log("Included at block hash", status.asInBlock.toHex());
-                        console.log("Events:");
-
-                        events.forEach(({ event: { data, method, section }, phase }) => {
-                            console.log(
-                                "\t",
-                                phase.toString(),
-                                `: ${section}.${method}`,
-                                data.toString()
-                            );
-                        });
-
-                        events
-                            .filter(({ event }) =>
-                                this.polkadotApi.events.system.ExtrinsicFailed.is(event)
-                            )
-                            .forEach(
-                                ({
-                                     event: {
-                                         data: [error, info],
-                                     },
-                                 }) => {
-                                    if ((error as any).isModule) {
-                                        const decoded = this.polkadotApi.registry.findMetaError(
-                                            (error as any).asModule
-                                        );
-                                        const { docs, method, section } = decoded;
-
-                                        console.log(`${section}.${method}: ${docs.join(" ")}`);
-                                    } else {
-                                        console.log(error.toString());
-                                    }
-                                }
-                            );
                         resolve({
                             unsubscribe: unsubscribeFunction,
                             result: true,
                             blockHash: status.hash,
                         });
                     } else if (status.isFinalized) {
-                        console.log("Finalized block hash", status.asFinalized.toHex());
                         resolve({
                             unsubscribe: unsubscribeFunction,
                             result: true,

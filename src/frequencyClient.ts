@@ -7,17 +7,17 @@ import {options} from "@frequency-chain/api-augment";
 export interface FrequencyClient{
     polkadotApi: ApiPromise,
     keyringPair: KeyringPair,
-    addMessage: (
+    addMessage(
         ipfsMessageSchema: number,
         ipfsMessageCid: string,
         ipfsMessageSize: number
-    ) => Promise<AddMessageResult>;
-    createMsa: () => Promise<CreateMsaResult>;
-    getMessages: (
+    ) : Promise<AddMessageResult>;
+    createMsa() : Promise<CreateMsaResult>;
+    getMessages(
         ipfsMessageSchema: number,
         pagination: BlockPaginationRequest
-    ) => Promise<GetMessagesResult>;
-    getMsa: () => Promise<GetMsaResult>;
+    ) : Promise<GetMessagesResult>;
+    getMsa() : Promise<GetMsaResult>;
 }
 
 export interface AddMessageResult {
@@ -43,27 +43,27 @@ export interface GetMsaResult {
 }
 
 export interface MessageResponse {
-    provider_msa_id: u64;
+    providerMsaId: u64;
     index: u16;
-    block_number: u32;
-    msa_id?: u64;
+    blockNumber: u32;
+    msaId?: u64;
     payload?: u8[];
     cid?: Vec<u8>;
-    payload_length?: u32;
+    payloadLength?: u32;
 }
 
 export interface BlockPaginationRequest {
-    from_block: number;
-    from_index: number;
-    to_block: number;
-    page_size: number;
+    fromBlock: number;
+    fromIndex: number;
+    toBlock: number;
+    pageSize: number;
 }
 
 export interface BlockPaginationResponse {
     content: MessageResponse[];
-    has_next: boolean;
-    next_block?: number;
-    next_index?: number;
+    hasNext: boolean;
+    nextBlock?: number;
+    nextIndex?: number;
 }
 
 export async function connect(providerUrl: string | string[] | undefined): Promise<ApiPromise> {
