@@ -11,7 +11,10 @@ module.exports = {
     "^.+\\.(ts|tsx)$": "ts-jest",
   },
   collectCoverageFrom: ["<rootDir>/src/**/*.{ts}"],
-  coveragePathIgnorePatterns: [".swagger.ts", "<rootDir>/src/migrations/V1__create_initial_indices.ts"],
+  coveragePathIgnorePatterns: [
+    ".swagger.ts",
+    "<rootDir>/src/migrations/V1__create_initial_indices.ts",
+  ],
   reporters: ["default", "jest-junit"],
   testMatch: ["<rootDir>/src/**/*.test.(ts)"],
   testEnvironment: "node",
