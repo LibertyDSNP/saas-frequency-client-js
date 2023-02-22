@@ -5,8 +5,6 @@ import { u16, u32, u64, u8, Vec } from "@polkadot/types";
 import { options } from "@frequency-chain/api-augment";
 
 export interface FrequencyClient {
-  polkadotApi: ApiPromise;
-  keyringPair: KeyringPair;
   addMessage(
     ipfsMessageSchema: number,
     ipfsMessageCid: string,

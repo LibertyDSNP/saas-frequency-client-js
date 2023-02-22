@@ -6,7 +6,6 @@ import { GenericContainer, StartedTestContainer, Wait } from "testcontainers";
 import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
 import { options } from "@frequency-chain/api-augment";
 
-// To run these tests follow README instructions
 describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", () => {
   jest.setTimeout(30000);
   let frequencyClient: DefaultFrequencyClient;
@@ -26,6 +25,9 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
       `ws://${substrate.getHost()}:${substrate.getMappedPort(9944)}`,
       "//Alice"
     );
+    const createMsaResult = await frequencyClient.createMsa();
+    const getMsaResult = await frequencyClient.getMsa();
+    expect(getMsaResult.result)
   });
 
   afterAll(() => {

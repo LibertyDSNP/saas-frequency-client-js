@@ -143,7 +143,7 @@ export class DefaultFrequencyClient implements FrequencyClient {
     return {
       result,
       blockHash,
-    } as GetMessagesResult;
+    };
   }
 
   async getMsa(): Promise<GetMsaResult> {
@@ -156,6 +156,6 @@ export class DefaultFrequencyClient implements FrequencyClient {
     return {
       result: msaId,
       blockHash,
-    } as GetMsaResult;
+    };
   }
 }
