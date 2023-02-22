@@ -21,13 +21,11 @@ export interface FrequencyClient{
 }
 
 export interface AddMessageResult {
-    unsubscribe: () => void;
     result: boolean;
     blockHash?: IU8a;
 }
 
 export interface CreateMsaResult {
-    unsubscribe: () => void;
     result: boolean;
     blockHash?: IU8a;
 }

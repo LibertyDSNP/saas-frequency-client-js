@@ -25,9 +25,7 @@ export class DefaultFrequencyClient implements FrequencyClient{
         providerUrl: string,
         suri: string
     ) {
-        let polkadotApi = await connect(
-            providerUrl
-        );
+        let polkadotApi = await connect(providerUrl)
         let keyring = new Keyring({ type: "sr25519", ss58Format: 2 });
         let keyringPair = keyring.addFromUri(suri);
         return new DefaultFrequencyClient(
@@ -47,25 +45,28 @@ export class DefaultFrequencyClient implements FrequencyClient{
             ipfsMessageSize
         );
         return new Promise<AddMessageResult>(async (resolve, reject) => {
-            const unsubscribeFunction = await addIfsMessageExtrinsic?.signAndSend(
-                this.keyringPair,
-                ({ events = [], status }) => {
-                    if (status.isInBlock) {
-                        resolve({
-                            unsubscribe: unsubscribeFunction,
-                            result: true,
-                            blockHash: status.hash,
-                        });
-                    } else if (status.isFinalized) {
-                        console.log("Finalized block hash", status.asFinalized.toHex());
-                        resolve({
-                            unsubscribe: unsubscribeFunction,
-                            result: true,
-                            blockHash: status.asFinalized.hash,
-                        });
+            let unsubscribe;
+            try {
+                unsubscribe = await addIfsMessageExtrinsic?.signAndSend(
+                    this.keyringPair,
+                    ({ events = [], status }) => {
+                        if (status.isInBlock) {
+                            resolve({
+                                result: true,
+                                blockHash: status.hash,
+                            });
+                        } else if (status.isFinalized) {
+                            resolve({
+                                result: true,
+                                blockHash: status.asFinalized.hash,
+                            });
+                        }
                     }
-                }
-            );
+                );
+            }
+            finally {
+                unsubscribe();
+            }
         });
     }
 
@@ -73,19 +74,16 @@ export class DefaultFrequencyClient implements FrequencyClient{
         const createMsaExtrinisic = this.polkadotApi.tx.msa.create();
         // eslint-disable-next-line no-async-promise-executor
         return new Promise<CreateMsaResult>(async (resolve, reject) => {
-            const unsubscribeFunction = await createMsaExtrinisic?.signAndSend(
+            await createMsaExtrinisic?.signAndSend(
                 this.keyringPair,
                 ({ events = [], status }) => {
-                    console.log("Transaction status:", status.type);
                     if (status.isInBlock) {
                         resolve({
-                            unsubscribe: unsubscribeFunction,
                             result: true,
                             blockHash: status.hash,
                         });
                     } else if (status.isFinalized) {
                         resolve({
-                            unsubscribe: unsubscribeFunction,
                             result: true,
                             blockHash: status.asFinalized.hash,
                         });
@@ -113,7 +111,6 @@ export class DefaultFrequencyClient implements FrequencyClient{
     }
 
     async getMsa(): Promise<GetMsaResult> {
-        console.log(this.keyringPair.publicKey);
         const msaQueryResult = await this.polkadotApi.query.msa.publicKeyToMsaId(
             this.keyringPair.publicKey
         );

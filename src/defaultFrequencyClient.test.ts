@@ -53,7 +53,7 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
                 createMsaResult.unsubscribe();
             }
         }
-    },15000)
+    })
 
     test("should successfully get the msa Account for a specific keyring", async () => {
         let createMsaResult;
@@ -70,7 +70,7 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
                 createMsaResult.unsubscribe();
             }
         }
-    },15000)
+    })
 
     test("should successfully add ipfs message", async () => {
         let createMsaResult;
@@ -92,7 +92,7 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
                 createMsaResult?.unsubscribe();
             }
         }
-    },15000)
+    })
 
     test("should successfully get the first page of ipfs messages", async () => {
         // Adding these extra messages just insures we see multiple results from the getMessage call.
@@ -115,15 +115,15 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
         }
 
         const pagination: BlockPaginationRequest = {
-            from_block: 0,
-            from_index: 0,
-            to_block: 1000,
-            page_size: 25,
+            fromBlock: 0,
+            fromIndex: 0,
+            toBlock: 1000,
+            pageSize: 25,
         };
         const retrieveMessageResult = await frequencyClient.getMessages(
             2,
             pagination
         );
-
-    },15000)
+        assert.equal(retrieveMessageResult.result, true)
+    })
 })
