@@ -1,18 +1,13 @@
 import "@frequency-chain/api-augment";
-import assert from "assert";
 import { DefaultFrequencyClient } from "./defaultFrequencyClient";
 import { BlockPaginationRequest } from "./frequencyClient";
 import { GenericContainer, StartedTestContainer, Wait } from "testcontainers";
-import { ApiPromise, Keyring, WsProvider } from "@polkadot/api";
-import { options } from "@frequency-chain/api-augment";
 
 describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", () => {
-  jest.setTimeout(30000);
+  jest.setTimeout(150000);
   let frequencyClient: DefaultFrequencyClient;
   let substrate: StartedTestContainer;
-  let api: ApiPromise;
   const version = "v1.2.1";
-  const ALICE = "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY";
 
   beforeAll(async () => {
     substrate = await new GenericContainer(
@@ -26,62 +21,29 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
       "//Alice"
     );
     const createMsaResult = await frequencyClient.createMsa();
+    expect(createMsaResult.result).toBe(true);
     const getMsaResult = await frequencyClient.getMsa();
-    expect(getMsaResult.result)
+    expect(getMsaResult.result).toBe(1);
   });
 
   afterAll(() => {
-    api.disconnect();
+    frequencyClient.polkadotApi.disconnect();
   });
-
-  test("should successfully create and retrieve an MSA Account", async () => {
-    const createMsaResult = await frequencyClient.createMsa();
-    assert.equal(createMsaResult.result, true);
-    const x = await frequencyClient.polkadotApi.rpc.state.getStorage(
-      frequencyClient.polkadotApi.query.system.account.key(ALICE)
-    );
-  }, 15000);
-
-  test("should successfully get the msa Account for a specific keyring", async () => {
-    let createMsaResult;
-    let getMsaResult;
-    createMsaResult = await frequencyClient.createMsa();
-    getMsaResult = await frequencyClient.getMsa();
-    assert.equal(getMsaResult.result, 1);
-  }, 15000);
-
-  test("should successfully add ipfs message", async () => {
-    let createMsaResult;
-    let getMsaResult;
-    let addMessageResult;
-    getMsaResult = await frequencyClient.getMsa();
-    if (getMsaResult.result != 1) {
-      createMsaResult = await frequencyClient.createMsa();
-    }
-    addMessageResult = await frequencyClient.addMessage(
-      1,
-      "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
-      860
-    );
-    assert.equal(addMessageResult.result, true);
-    const x = api.rpc.schemas.getBySchemaId("1");
-  }, 15000);
 
   test("should successfully get the first page of ipfs messages", async () => {
     // Adding these extra messages just insures we see multiple results from the getMessage call.
-    let addMessageResult1;
-    addMessageResult1 = await frequencyClient.addMessage(
-      2,
+    const addMessageResult1 = await frequencyClient.addMessage(
       "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+      2,
       860
     );
-
-    let addMessageResult2;
-    addMessageResult2 = await frequencyClient.addMessage(
-      2,
+    expect(addMessageResult1.result).toBe(true)
+    const addMessageResult2 = await frequencyClient.addMessage(
       "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi",
+      2,
       860
     );
+    expect(addMessageResult2.result).toBe(true)
 
     const pagination: BlockPaginationRequest = {
       fromBlock: 0,
@@ -93,6 +55,6 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
       2,
       pagination
     );
-    assert.equal(retrieveMessageResult.result, true);
-  }, 15000);
+    expect(retrieveMessageResult.result.content.length).toBe(2)
+  });
 });

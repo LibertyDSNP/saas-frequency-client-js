@@ -1,13 +1,11 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import { KeyringPair } from "@polkadot/keyring/types";
 import { IU8a } from "@polkadot/types-codec/types/interfaces";
-import { u16, u32, u64, u8, Vec } from "@polkadot/types";
 import { options } from "@frequency-chain/api-augment";
 
 export interface FrequencyClient {
   addMessage(
-    ipfsMessageSchema: number,
     ipfsMessageCid: string,
+    ipfsMessageSchema: number,
     ipfsMessageSize: number
   ): Promise<AddMessageResult>;
   createMsa(): Promise<CreateMsaResult>;
@@ -29,23 +27,23 @@ export interface CreateMsaResult {
 }
 
 export interface GetMessagesResult {
-  result: any;
+  result: BlockPaginationResponseMessageMapped;
   blockHash?: IU8a;
 }
 
 export interface GetMsaResult {
-  result: any;
+  result: number;
   blockHash?: IU8a;
 }
 
-export interface MessageResponse {
-  providerMsaId: u64;
-  index: u16;
-  blockNumber: u32;
-  msaId?: u64;
-  payload?: u8[];
-  cid?: Vec<u8>;
-  payloadLength?: u32;
+export interface MessageResponseMapped {
+  providerMsaId: number;
+  index: number;
+  blockNumber: number;
+  msaId?: number;
+  payload?: IU8a;
+  cid?: IU8a;
+  payloadLength?: number;
 }
 
 export interface BlockPaginationRequest {
@@ -55,8 +53,8 @@ export interface BlockPaginationRequest {
   pageSize: number;
 }
 
-export interface BlockPaginationResponse {
-  content: MessageResponse[];
+export interface BlockPaginationResponseMessageMapped {
+  content: MessageResponseMapped[];
   hasNext: boolean;
   nextBlock?: number;
   nextIndex?: number;
@@ -66,6 +64,6 @@ export async function connect(
   providerUrl: string | string[] | undefined
 ): Promise<ApiPromise> {
   const provider = new WsProvider(providerUrl);
-  const apiObservable = new ApiPromise({ provider, ...options });
+  const apiObservable = await ApiPromise.create({ provider, ...options });
   return apiObservable.isReady;
 }
