@@ -42,7 +42,7 @@ export interface MessageResponseMapped {
   blockNumber: number;
   msaId?: number;
   payload?: IU8a;
-  cid?: IU8a;
+  cid?: String;
   payloadLength?: number;
 }
 

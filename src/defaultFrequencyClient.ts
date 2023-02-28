@@ -47,7 +47,6 @@ export class DefaultFrequencyClient implements FrequencyClient {
       const unsubscribe = await addIfsMessageExtrinsic?.signAndSend(
         this.keyringPair,
         ({ events = [], status }) => {
-          console.log("Transaction status:", status.type);
           if (status.isFinalized) {
             if (
               events.find(({ event }) =>
@@ -148,7 +147,7 @@ export class DefaultFrequencyClient implements FrequencyClient {
       blockNumber: messageResponse.block_number.toNumber(),
       msaId: messageResponse.msa_id.value,
       payload: messageResponse.payload.value,
-      cid: messageResponse.cid.value,
+      cid: messageResponse.cid.value.toString(),
       payloadLength: messageResponse.payload_length.value?.toNumber(),
     };
   }
