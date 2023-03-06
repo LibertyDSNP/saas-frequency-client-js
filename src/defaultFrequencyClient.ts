@@ -106,7 +106,7 @@ export class DefaultFrequencyClient implements FrequencyClient {
     ipfsMessageSchema: number,
     ipfsMessageSize: number
   ): Promise<AddMessageResult> {
-    const addIfsMessageExtrinsic = this.polkadotApi.tx.messages.addIpfsMessage(
+    const addIpfsMessageExtrinsic = this.polkadotApi.tx.messages.addIpfsMessage(
       ipfsMessageSchema,
       ipfsMessageCid,
       ipfsMessageSize
@@ -115,7 +115,7 @@ export class DefaultFrequencyClient implements FrequencyClient {
       // eslint-disable-next-line no-async-promise-executor
       async (resolve, reject) => {
         try {
-          const unsubscribe = await addIfsMessageExtrinsic?.signAndSend(
+          const unsubscribe = await addIpfsMessageExtrinsic?.signAndSend(
             this.keyringPair,
             ({ events = [], status }) => {
               const delegate = new EventFindingStatusCallback(
