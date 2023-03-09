@@ -7,7 +7,7 @@ describe("Test Polkadot Frequency functionality for Msa, Schema, and Messages", 
   jest.setTimeout(150000);
   let frequencyClient: DefaultFrequencyClient;
   let substrate: StartedTestContainer;
-  const version = "v1.2.1";
+  const version = "v1.3.0";
 
   beforeAll(async () => {
     substrate = await new GenericContainer(
